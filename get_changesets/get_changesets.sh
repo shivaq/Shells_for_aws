@@ -25,6 +25,26 @@ CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`-$DEFAULT_PROFILE"
 
 echo "$PATH_OF_STACK"
 
+# TODO: get a template diff
+
+# TODO: get causes of changes
+# TODO: get organized changed resources
+# TODO: count the number of each change causes 
+
+# TODO: output change set info
+# TODO: get names of change sets
+
+# TODO: list unexecuted change sets
+# TODO: select a change set to be executed
+
+# TODO: delete unexecuted change sets
+
+# TODO: get a status of ec2 instance
+# TODO: disable delete lock
+
+# TODO: check if the resource is referenced 
+
+
 aws cloudformation create-change-set \
                     --stack-name $STACK_TO_UPDATE \
                     --change-set-name $CSNAME \
