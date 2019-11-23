@@ -44,3 +44,24 @@ function update_stack_parameter {
                                     --parameters $LIST_OF_PARAMS
 
 }
+
+function get_value_from_config {
+
+    CFG_FILE=shell_for_aws.cfg
+    VALUE_TO_SEARCH=$1
+
+    if [ -f "$CFG_FILE" ]; then
+    VALUE=$(grep "^$VALUE_TO_SEARCH" $CFG_FILE | cut -d '=' -f 2- | tr -d '""')
+    KEY=$(grep "^$VALUE_TO_SEARCH" $CFG_FILE | cut -d '=' -f -1 | tr -d '""')
+    else
+        cd ..
+        pwd
+        VALUE=$(grep "^$VALUE_TO_SEARCH" $CFG_FILE | cut -d '=' -f 2- | tr -d '""')
+        KEY=$(grep "^$VALUE_TO_SEARCH" $CFG_FILE | cut -d '=' -f -1 | tr -d '""')
+        cd -
+        pwd
+    fi
+
+    ret_value=$VALUE
+    ret_key=$KEY
+}
