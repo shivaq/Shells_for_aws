@@ -14,7 +14,7 @@ NUM_OF_VALID_TOKENA=6
 TEMP_FILE="sdkfjsldkfj_temp_file_dslkfjlskdflskdfjlskdjflsdjflskdjflskd"
 
 # Check arguments
-if [[ $# -ne 2 ]]; then
+if [[ $# -lt 2 ]]; then
   echo "引数は2つ必要です。もう一度やり直してください"
   echo "使い方: $0 <MFA_TOKEN_CODE> <AWS_CLI_PROFILE>"
   echo "Where:"
@@ -22,6 +22,20 @@ if [[ $# -ne 2 ]]; then
   echo "   <AWS_CLI_PROFILE> = aws-cli profile $HOME/.aws/config に記述されている"
   exit 1
 fi
+
+# Activate using utility shell
+REFERENCED_FILE=util_shell.sh
+if [ -f "$REFERENCED_FILE" ]; then
+    . $REFERENCED_FILE
+else
+    cd ..
+    . $REFERENCED_FILE
+fi
+
+# set default region
+VALUE_TO_FIND="DEFAULT_REGION"
+get_value_from_config $VALUE_TO_FIND
+DEFAULT_REGION=$ret_value
 
 # Check config files
 echo "mfa.cfg を読み込みます。。。"
@@ -32,6 +46,7 @@ fi
 
 AWS_CLI_PROFILE=$1
 MFA_TOKEN_CODE=$2
+SWITCHED_ROLE=${3:-sls_admin_role}
 
 # extract iam ARN
 MFA_ARN=$(grep "^$AWS_CLI_PROFILE" ~/auto_mfa_for_aws_cli/mfa.cfg | cut -d '=' -f 2- | tr -d '""')
@@ -70,17 +85,19 @@ touch $TEMP_FILE
 aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
     --serial-number $MFA_ARN --token-code $MFA_TOKEN_CODE --output text \
     | awk '{printf("export AWS_ACCESS_KEY_ID=\"%s\"\nexport AWS_SECRET_ACCESS_KEY=\"%s\"\nexport AWS_SESSION_TOKEN=\"%s\"\nexport AWS_SECURITY_TOKEN=\"%s\"\n",$2,$4,$5,$5)}' \
-    | tee ~/.token_file=~~ > $TEMP_FILE
+    | tee ~/.token_file > $TEMP_FILE
 
 # check if it's succeeded
 if [ -s $TEMP_FILE ]; then
+    echo "export AWS_SDK_LOAD_CONFIG=true" >> ~/.token_file
+    # set default profile
+    echo "export AWS_PROFILE=$SWITCHED_ROLE" >> ~/.token_file
+    # set default region
+    echo "export AWS_DEFAULT_REGION=$DEFAULT_REGION" >> ~/.token_file
     source ~/.token_file
     echo "MFA トークンを設定しました"
-    # serverless framework will load ~/.aws/config
-    export AWS_SDK_LOAD_CONFIG=true
 else
     echo "失敗"
 fi
-
 
 rm -f $TEMP_FILE
