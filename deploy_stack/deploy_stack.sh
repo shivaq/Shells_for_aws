@@ -8,6 +8,16 @@ STACK_TO_UPDATE=${1:-Ec2}
 # Default profile executing aws cli
 DEFAULT_PROFILE=${2:-sls_admin_role}
 
+# Activate using utility shell
+UTIL_FILE=util_shell.sh
+if [ -f "$UTIL_FILE" ]; then
+    echo "$UTIL_FILE is here"
+    . util_shell.sh
+else
+    echo "$UTIL_FILE is not here"
+    cd ..
+    . util_shell.sh
+fi
 
 # deploy your stacks
 aws cloudformation deploy --profile $DEFAULT_PROFILE --template-file $PATH_OF_STACK$STACK_TO_UPDATE.yaml --stack-name $STACK_TO_UPDATE
@@ -17,30 +27,6 @@ ret_val=$?
 if [ $ret_val -eq 255 ];then
     echo "There is nothing to be updated."
     exit
+else
+    get_stack_status $DEFAULT_PROFILE $STACK_TO_UPDATE
 fi
-
-while true
-do
-
-    # Get stack status
-    test=$(aws cloudformation describe-stack-events \
-        --profile $DEFAULT_PROFILE \
-        --stack-name $STACK_TO_UPDATE \
-        --max-items 1)
-    stack_event="$(echo $test | jq '."StackEvents"[0]."ResourceStatus"'| tr -d '""')"
-    event_reason="$(echo $test | jq '."StackEvents"[0]."ResourceStatusReason"'| tr -d '""')"
-    logical_id="$(echo $test | jq '."StackEvents"[0]."LogicalResourceId"'| tr -d '""')"
-
-    echo "$logical_id is $stack_event because $event_reason"
-
-    # Check stack status
-    if [ $stack_event = "UPDATE_ROLLBACK_COMPLETE" ] || [ $stack_event = "UPDATE_COMPLETE" ];then
-        echo "Yes $stack_event"
-        if [ $logical_id = $STACK_TO_UPDATE ];then
-            echo "Stack change is finished"
-            exit
-        fi
-    fi
-    sleep 10s
-
-done
