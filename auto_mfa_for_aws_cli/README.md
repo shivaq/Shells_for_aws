@@ -11,7 +11,14 @@
 
 * ディレクトリごと格納
 
-~/auto_mfa_for_aws_cli
+~/Shells_for_aws
+
+
+## bashrc に下記 aliase を追記
+```bash
+## set aws cli mfa settings
+source ~/Shells_for_aws/set_aliases_for_aws/set_aliases_for_aws.sh
+```
 
 ## 使い方
 
@@ -51,7 +58,7 @@ export AWS_SDK_LOAD_CONFIG=true
 
 -------------------------------------------------
 ## ユーザーの MFA の ARN の登録
-### mfa.cfg の設定
+### hell_for_aws.cfg の設定
 
 * 各ユーザーの MFA の ARN を記載
 
