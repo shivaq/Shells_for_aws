@@ -14,6 +14,24 @@ NUM_OF_VALID_TOKENA=6
 CFG_FILE_PATH=~/.Shells_for_aws/shell_for_aws.cfg
 TEMP_FILE="sdkfjsldkfj_temp_file_dslkfjlskdflskdfjlskdjflsdjflskdjflskd"
 
+# environment variables for AWS
+AWS_CLI_PROFILE=$1
+MFA_TOKEN_CODE=$2
+SWITCHED_ROLE=${3:-sls_admin_role}
+
+# Activate using utility shell
+source ~/.Shells_for_aws/util_shell.sh
+
+# Get default region
+VALUE_TO_FIND="DEFAULT_REGION"
+get_value_from_config $VALUE_TO_FIND
+DEFAULT_REGION=$ret_value
+
+# extract mfa ARN
+MFA_ARN=$(grep "^$AWS_CLI_PROFILE" $CFG_FILE_PATH | cut -d '=' -f 2- | tr -d '""')
+# extract selected profile
+SELECTED_PROFILE=$(grep "^$AWS_CLI_PROFILE" $CFG_FILE_PATH | cut -d '=' -f -1 | tr -d '')
+
 # Check arguments
 if [[ $# -lt 2 ]]; then
   echo "引数は2つまたは3つ必要です。もう一度やり直してください"
@@ -24,14 +42,6 @@ if [[ $# -lt 2 ]]; then
   exit 1
 fi
 
-# Activate using utility shell
-source ~/.Shells_for_aws/util_shell.sh
-
-# set default region
-VALUE_TO_FIND="DEFAULT_REGION"
-get_value_from_config $VALUE_TO_FIND
-DEFAULT_REGION=$ret_value
-
 # Check config file existence
 REFERENCED_FILE=$CFG_FILE_PATH
 if [ -f "$REFERENCED_FILE" ]; then
@@ -40,15 +50,6 @@ else
     echo "shell_for_aws.cfg がありません。作成しないとMFAセットできません"
     exit 1
 fi
-
-AWS_CLI_PROFILE=$1
-MFA_TOKEN_CODE=$2
-SWITCHED_ROLE=${3:-sls_admin_role}
-
-# extract iam ARN
-MFA_ARN=$(grep "^$AWS_CLI_PROFILE" $CFG_FILE_PATH | cut -d '=' -f 2- | tr -d '""')
-# extract selected profile
-SELECTED_PROFILE=$(grep "^$AWS_CLI_PROFILE" $CFG_FILE_PATH | cut -d '=' -f -1 | tr -d '')
 
 # check profile existence
 if [ "$SELECTED_PROFILE" = $1 ]; then
