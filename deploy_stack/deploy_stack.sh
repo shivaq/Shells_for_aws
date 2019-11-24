@@ -1,23 +1,21 @@
 #!/bin/bash
 
+# Activate using utility shell
+source ~/.Shells_for_aws/util_shell.sh
+
+# Get default region
+VALUE_TO_FIND="PATH_OF_STACK"
+get_value_from_config $VALUE_TO_FIND
+
 # Set a path to your template files
-PATH_OF_STACK="/Users/yasuakishibata/Dropbox/01.study/00.Git/01.CloudFormation/ActualEnv/"
+PATH_OF_STACK=$ret_value
 
 STACK_TO_UPDATE=${1:-Ec2}
 
 # Default profile executing aws cli
-DEFAULT_PROFILE=${2:-sls_admin_role}
-
-# Activate using utility shell
-UTIL_FILE=util_shell.sh
-if [ -f "$UTIL_FILE" ]; then
-    echo "$UTIL_FILE is here"
-    . util_shell.sh
-else
-    echo "$UTIL_FILE is not here"
-    cd ..
-    . util_shell.sh
-fi
+VALUE_TO_FIND="DEFAULT_PROFILE"
+get_value_from_config $VALUE_TO_FIND
+DEFAULT_PROFILE=$ret_value
 
 # deploy your stacks
 aws cloudformation deploy --profile $DEFAULT_PROFILE --template-file $PATH_OF_STACK$STACK_TO_UPDATE.yaml --stack-name $STACK_TO_UPDATE

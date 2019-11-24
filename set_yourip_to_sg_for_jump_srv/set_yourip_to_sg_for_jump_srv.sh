@@ -3,11 +3,16 @@
 # Get my own IP address
 MY_IP_ADDRESS=$(curl http://checkip.amazonaws.com/)
 
+# Activate using utility shell
+source ~/.Shells_for_aws/util_shell.sh
+
 # Default profile executing aws cli
-DEFAULT_PROFILE=${1:-sls_admin_role}
+VALUE_TO_FIND="DEFAULT_PROFILE"
+get_value_from_config $VALUE_TO_FIND
+DEFAULT_PROFILE=$ret_value
 
 
-STACK_TO_UPDATE=${2:-Sg}
+STACK_TO_UPDATE=${1:-Sg}
 PARAM_KEY_TO_UPDATE="MyIpAddress"
 echo "My IP address is $MY_IP_ADDRESS"
 
@@ -16,16 +21,6 @@ LIST_OF_PARAMS="ParameterKey=$PARAM_KEY_TO_UPDATE,ParameterValue=$MY_IP_ADDRESS/
 # LIST_OF_PARAMS="ParameterKey=$PARAM_KEY_TO_UPDATE,ParameterValue=８/32"
 # LIST_OF_PARAMS="ParameterKey=$PARAM_KEY_TO_UPDATE,ParameterValue=8.8.8.8/32"
 
-# Activate using utility shell
-UTIL_FILE=util_shell.sh
-if [ -f "$UTIL_FILE" ]; then
-    echo "$UTIL_FILE is here"
-    . util_shell.sh
-else
-    echo "$UTIL_FILE is not here"
-    cd ..
-    . util_shell.sh
-fi
 
 echo "Allow my jump server security group to access from $LIST_OF_PARAMS in SSH."
 
