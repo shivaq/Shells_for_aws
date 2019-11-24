@@ -20,6 +20,10 @@ DATE=`date +"%m-%d-%H-%M"`
 CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`-$DEFAULT_PROFILE"
 
 # TODO: get a template diff
+NEW_FILE=$PATH_OF_STACK$STACK_TO_UPDATE.yaml
+aws cloudformation --profile $DEFAULT_PROFILE get-template --template-stage Original --stack-name $STACK_TO_UPDATE
+
+# echo $NEW_FILE
 
 # TODO: get causes of changes
 # TODO: get organized changed resources
@@ -39,7 +43,7 @@ CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`-$DEFAULT_PROFILE"
 # TODO: check if the resource is referenced 
 
 
-aws cloudformation create-change-set \
-                    --stack-name $STACK_TO_UPDATE \
-                    --change-set-name $CSNAME \
-                    --template-file $PATH_OF_STACK$STACK_TO_UPDATE.yaml
+# aws cloudformation create-change-set \
+#                     --stack-name $STACK_TO_UPDATE \
+#                     --change-set-name $CSNAME \
+#                     --template-file $PATH_OF_STACK$STACK_TO_UPDATE.yaml
