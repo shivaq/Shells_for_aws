@@ -11,6 +11,7 @@
 # export AWS_SESSION_TOKEN='TOKEN'
 
 NUM_OF_VALID_TOKENA=6
+CFG_FILE_PATH=~/.Shells_for_aws/shell_for_aws.cfg
 TEMP_FILE="sdkfjsldkfj_temp_file_dslkfjlskdflskdfjlskdjflsdjflskdjflskd"
 
 # Check arguments
@@ -24,23 +25,19 @@ if [[ $# -lt 2 ]]; then
 fi
 
 # Activate using utility shell
-REFERENCED_FILE=util_shell.sh
-if [ -f "$REFERENCED_FILE" ]; then
-    . $REFERENCED_FILE
-else
-    cd ..
-    . $REFERENCED_FILE
-fi
+source ~/.Shells_for_aws/util_shell.sh
 
 # set default region
 VALUE_TO_FIND="DEFAULT_REGION"
 get_value_from_config $VALUE_TO_FIND
 DEFAULT_REGION=$ret_value
 
-# Check config files
-echo "mfa.cfg を読み込みます。。。"
-if [ ! -r ~/auto_mfa_for_aws_cli/mfa.cfg ]; then
-    echo "mfa.cfg がありません。作成しないとMFAセットできません"
+# Check config file existence
+REFERENCED_FILE=$CFG_FILE_PATH
+if [ -f "$REFERENCED_FILE" ]; then
+    echo "shell_for_aws.cfg を読み込みます。。。"
+else
+    echo "shell_for_aws.cfg がありません。作成しないとMFAセットできません"
     exit 1
 fi
 
@@ -49,15 +46,15 @@ MFA_TOKEN_CODE=$2
 SWITCHED_ROLE=${3:-sls_admin_role}
 
 # extract iam ARN
-MFA_ARN=$(grep "^$AWS_CLI_PROFILE" ~/auto_mfa_for_aws_cli/mfa.cfg | cut -d '=' -f 2- | tr -d '""')
+MFA_ARN=$(grep "^$AWS_CLI_PROFILE" $CFG_FILE_PATH | cut -d '=' -f 2- | tr -d '""')
 # extract selected profile
-SELECTED_PROFILE=$(grep "^$AWS_CLI_PROFILE" ~/auto_mfa_for_aws_cli/mfa.cfg | cut -d '=' -f -1 | tr -d '')
+SELECTED_PROFILE=$(grep "^$AWS_CLI_PROFILE" $CFG_FILE_PATH | cut -d '=' -f -1 | tr -d '')
 
 # check profile existence
 if [ "$SELECTED_PROFILE" = $1 ]; then
     echo "profile $1 を使用します"
 else
-    echo "profile $1 は mfa.cfg 内に存在していません"
+    echo "profile $1 は shell_for_aws.cfg 内に存在していません"
     exit 1
 fi
 
@@ -74,9 +71,9 @@ if ! [ ${#MFA_TOKEN_CODE} -eq $NUM_OF_VALID_TOKENA ];then
     exit 1
 fi
 
-echo "AWS-CLI Profile: $AWS_CLI_PROFILE"
-echo "MFA ARN: $MFA_ARN"
-echo "MFA Token Code: $MFA_TOKEN_CODE"
+# echo "AWS-CLI Profile: $AWS_CLI_PROFILE"
+# echo "MFA ARN: $MFA_ARN"
+# echo "MFA Token Code: $MFA_TOKEN_CODE"
 
 # temp file to store succeeded outputs
 touch $TEMP_FILE
@@ -89,6 +86,7 @@ aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
 
 # check if it's succeeded
 if [ -s $TEMP_FILE ]; then
+    # make serverless framework load config every invocation
     echo "export AWS_SDK_LOAD_CONFIG=true" >> ~/.token_file
     # set default profile
     echo "export AWS_PROFILE=$SWITCHED_ROLE" >> ~/.token_file
