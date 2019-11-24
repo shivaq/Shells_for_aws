@@ -12,7 +12,7 @@
 
 NUM_OF_VALID_TOKENA=6
 CFG_FILE_PATH=~/.Shells_for_aws/shell_for_aws.cfg
-TEMP_FILE="sdkfjsldkfj_temp_file_dslkfjlskdflskdfjlskdjflsdjflskdjflskd"
+EXPORT_ENV_FILE_PATH=~/.Shells_for_aws/export_env_vir_skdjflsdjflseiworueiruowieuruwo
 
 # environment variables for AWS
 AWS_CLI_PROFILE=$1
@@ -76,27 +76,21 @@ fi
 # echo "MFA ARN: $MFA_ARN"
 # echo "MFA Token Code: $MFA_TOKEN_CODE"
 
-# temp file to store succeeded outputs
-touch $TEMP_FILE
-
 # Try setting mfa token
 aws --profile $AWS_CLI_PROFILE sts get-session-token --duration 129600 \
     --serial-number $MFA_ARN --token-code $MFA_TOKEN_CODE --output text \
     | awk '{printf("export AWS_ACCESS_KEY_ID=\"%s\"\nexport AWS_SECRET_ACCESS_KEY=\"%s\"\nexport AWS_SESSION_TOKEN=\"%s\"\nexport AWS_SECURITY_TOKEN=\"%s\"\n",$2,$4,$5,$5)}' \
-    | tee ~/.token_file > $TEMP_FILE
+    | tee $EXPORT_ENV_FILE_PATH > /dev/null 2>&1 
 
 # check if it's succeeded
-if [ -s $TEMP_FILE ]; then
+if [ -s $EXPORT_ENV_FILE_PATH ]; then
     # make serverless framework load config every invocation
-    echo "export AWS_SDK_LOAD_CONFIG=true" >> ~/.token_file
+    echo "export AWS_SDK_LOAD_CONFIG=true" >> $EXPORT_ENV_FILE_PATH
     # set default profile
-    echo "export AWS_PROFILE=$SWITCHED_ROLE" >> ~/.token_file
+    echo "export AWS_PROFILE=$SWITCHED_ROLE" >> $EXPORT_ENV_FILE_PATH
     # set default region
-    echo "export AWS_DEFAULT_REGION=$DEFAULT_REGION" >> ~/.token_file
-    source ~/.token_file
+    echo "export AWS_DEFAULT_REGION=$DEFAULT_REGION" >> $EXPORT_ENV_FILE_PATH
     echo "MFA トークンを設定しました"
 else
     echo "失敗"
 fi
-
-rm -f $TEMP_FILE
