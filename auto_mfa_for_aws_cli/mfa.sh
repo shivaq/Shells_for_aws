@@ -15,7 +15,7 @@ TEMP_FILE="sdkfjsldkfj_temp_file_dslkfjlskdflskdfjlskdjflsdjflskdjflskd"
 
 # Check arguments
 if [[ $# -lt 2 ]]; then
-  echo "引数は2つ必要です。もう一度やり直してください"
+  echo "引数は2つまたは3つ必要です。もう一度やり直してください"
   echo "使い方: $0 <MFA_TOKEN_CODE> <AWS_CLI_PROFILE>"
   echo "Where:"
   echo "   <MFA_TOKEN_CODE> = virtual MFA device から取得したコード"
