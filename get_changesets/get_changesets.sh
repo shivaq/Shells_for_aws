@@ -15,15 +15,31 @@ VALUE_TO_FIND="PATH_OF_STACK"
 get_value_from_config $VALUE_TO_FIND
 PATH_OF_STACK=$ret_value
 
-DATE=`date +"%m-%d-%H-%M"`
-
-CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`-$DEFAULT_PROFILE"
-
-# TODO: get a template diff
+# Path of local cfn template
 NEW_FILE=$PATH_OF_STACK$STACK_TO_UPDATE.yaml
-aws cloudformation --profile $DEFAULT_PROFILE get-template --template-stage Original --stack-name $STACK_TO_UPDATE
 
-# echo $NEW_FILE
+###########################
+# get a template diff
+###########################
+
+# Get the template used in cfn stack
+# strict=False let ctrl characters inside strings
+# jq is difficult to avoid ctrl character error so use python
+current_template="$(\
+            aws cloudformation --profile $DEFAULT_PROFILE \
+            get-template --template-stage Original --stack-name $STACK_TO_UPDATE\
+            | python3 -c "import sys, json; \
+            print(json.load(sys.stdin, strict=False)\
+            ['TemplateBody'])"\
+            )"
+
+echo "$current_template" > diff_file_flskdjfoeriuwoeutwo
+
+diff diff_file_flskdjfoeriuwoeutwo $NEW_FILE
+rm -f diff_file_flskdjfoeriuwoeutwo
+
+DATE=`date +"%m-%d-%H-%M"`
+CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`-$DEFAULT_PROFILE"
 
 # TODO: get causes of changes
 # TODO: get organized changed resources
