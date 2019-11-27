@@ -1,7 +1,7 @@
 #!/bin/bash
 
-function get_stack_status {
 
+function get_stack_status {
 
 DEFAULT_PROFILE=$1
 STACK_TO_UPDATE=$2
@@ -31,6 +31,7 @@ do
 done
 }
 
+
 function update_stack_parameter {
 
     DEFAULT_PROFILE=$1
@@ -44,6 +45,7 @@ function update_stack_parameter {
                                     --parameters $LIST_OF_PARAMS
 
 }
+
 
 function get_value_from_config {
 
