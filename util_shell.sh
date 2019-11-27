@@ -67,3 +67,27 @@ function get_value_from_config {
     ret_value=$VALUE
     ret_key=$KEY
 }
+
+
+# Get the template used in cfn stack
+function get_a_template_diff {
+
+    DEFAULT_PROFILE=$1
+    STACK_TO_UPDATE=$2
+    NEW_FILE=$3
+
+    # strict=False let ctrl characters inside strings
+    # jq is difficult to avoid ctrl character error so use python
+    current_template="$(\
+                aws cloudformation --profile $DEFAULT_PROFILE \
+                get-template --template-stage Original --stack-name $STACK_TO_UPDATE\
+                | python3 -c "import sys, json; \
+                print(json.load(sys.stdin, strict=False)\
+                ['TemplateBody'])"\
+                )"
+
+    echo "$current_template" > diff_file_flskdjfoeriuwoeutwo
+
+    diff diff_file_flskdjfoeriuwoeutwo $NEW_FILE
+    rm -f diff_file_flskdjfoeriuwoeutwo
+}
