@@ -21,6 +21,13 @@ NEW_FILE=$PATH_OF_STACK$STACK_TO_UPDATE.yaml
 # Get a template diff
 get_a_template_diff $DEFAULT_PROFILE $STACK_TO_UPDATE $NEW_FILE
 
+echo "\nこの変更で、変更セットを作成しますか？"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) echo "変更セット作成をすすめます"; break;;
+        No ) echo "変更セット作成を中止します"; exit;;
+    esac
+done
 
 DATE=`date +"%m-%d-%H-%M"`
 CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`-$DEFAULT_PROFILE"
