@@ -45,9 +45,9 @@ fi
 # Check config file existence
 REFERENCED_FILE=$CFG_FILE_PATH
 if [ -f "$REFERENCED_FILE" ]; then
-    echo "shell_for_aws.cfg を読み込みます。。。"
+    echo "~/.Shells_for_aws/shell_for_aws.cfg を読み込みます。。。"
 else
-    echo "shell_for_aws.cfg がありません。作成しないとMFAセットできません"
+    echo "~/.Shells_for_aws/shell_for_aws.cfg がありません。作成しないとMFAセットできません"
     exit 1
 fi
 
@@ -55,7 +55,7 @@ fi
 if [ "$SELECTED_PROFILE" = $1 ]; then
     echo "profile $1 を使用します"
 else
-    echo "profile $1 は shell_for_aws.cfg 内に存在していません"
+    echo "profile $1 は ~/.Shells_for_aws/shell_for_aws.cfg 内に存在していません"
     exit 1
 fi
 
