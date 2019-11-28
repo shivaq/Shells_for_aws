@@ -93,7 +93,10 @@ function get_a_template_diff {
 }
 
 LOG_FILE="/var/log/awsshell.log"
+LOG_OUTPUT=ON
 
 function logit {
+    if [ $LOG_OUTPUT=ON ];then
     echo "[$USER `date +"%D %T"`] - ${*}" >> ${LOG_FILE}
+    fi
 }
