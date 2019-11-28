@@ -91,3 +91,9 @@ function get_a_template_diff {
     diff diff_file_flskdjfoeriuwoeutwo $NEW_FILE
     rm -f diff_file_flskdjfoeriuwoeutwo
 }
+
+LOG_FILE="/var/log/awsshell.log"
+
+function logit {
+    echo "[$USER `date +"%D %T"`] - ${*}" >> ${LOG_FILE}
+}
