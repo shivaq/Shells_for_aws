@@ -28,6 +28,9 @@ logit "PATH_OF_STACK is $PATH_OF_STACK"
 # Make the path of local cfn template
 NEW_FILE=$PATH_OF_STACK$STACK_TO_UPDATE.yaml
 
+aws cloudformation --profile $DEFAULT_PROFILE validate-template \
+                    --template-body file://"$NEW_FILE"
+
 logit "Do diff!"
 # Get a template diff
 get_a_template_diff $DEFAULT_PROFILE $STACK_TO_UPDATE $NEW_FILE
@@ -61,9 +64,9 @@ CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`"
 # TODO: check if the resource is referenced 
 
 
-aws cloudformation create-change-set \
-                    --profile $DEFAULT_PROFILE \
-                    --stack-name $STACK_TO_UPDATE \
-                    --change-set-name $CSNAME \
-                    --template-body $PATH_OF_STACK$STACK_TO_UPDATE.yaml \
-                    --capabilities CAPABILITY_IAM
+# aws cloudformation create-change-set \
+#                     --profile $DEFAULT_PROFILE \
+#                     --stack-name $STACK_TO_UPDATE \
+#                     --change-set-name $CSNAME \
+#                     --template-body $PATH_OF_STACK$STACK_TO_UPDATE.yaml \
+#                     --capabilities CAPABILITY_IAM
