@@ -28,11 +28,19 @@ logit "PATH_OF_STACK is $PATH_OF_STACK"
 # Make the path of local cfn template
 NEW_FILE=$PATH_OF_STACK$STACK_TO_UPDATE.yaml
 
-aws cloudformation --profile $DEFAULT_PROFILE validate-template \
-                    --template-body file://"$NEW_FILE"
+# Validate template.
+validate_template $DEFAULT_PROFILE $NEW_FILE
 
-logit "Do diff!"
+ret_val=$?
+if [ $ret_val -eq 255 ];then
+    echo "Validation error."
+    exit
+else
+    echo "Validation OK"
+fi
+
 # Get a template diff
+logit "Do diff!"
 get_a_template_diff $DEFAULT_PROFILE $STACK_TO_UPDATE $NEW_FILE
 
 echo "\nこの変更で、変更セットを作成しますか？"

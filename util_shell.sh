@@ -100,3 +100,12 @@ function logit {
     echo "[$USER `date +"%D %T"`] - ${*}" >> ${LOG_FILE}
     fi
 }
+
+function validate_template {
+
+    DEFAULT_PROFILE=$1
+    NEW_FILE=$2
+
+    aws cloudformation --profile $DEFAULT_PROFILE validate-template \
+                    --template-body file://"$NEW_FILE"
+}
