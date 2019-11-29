@@ -12,15 +12,14 @@ logit "Stack to update is $STACK_TO_UPDATE"
 
 
 # Get the default profile executing aws cli
-VALUE_TO_FIND="DEFAULT_PROFILE"
-get_value_from_config $VALUE_TO_FIND
+get_value_from_config "DEFAULT_PROFILE"
 DEFAULT_PROFILE=$ret_value
 
 logit "DEFAULT_PROFILE is $DEFAULT_PROFILE"
 
 # Get the path of template
 VALUE_TO_FIND="PATH_OF_STACK"
-get_value_from_config $VALUE_TO_FIND
+get_value_from_config "PATH_OF_STACK"
 PATH_OF_STACK=$ret_value
 
 logit "PATH_OF_STACK is $PATH_OF_STACK"
@@ -36,7 +35,7 @@ if [ $ret_val -eq 255 ];then
     echo "Validation error."
     exit
 else
-    echo "Validation OK"
+    echo "Yes!Yes!Ok!OK Validation is OK!!!"
 fi
 
 # Get a template diff
@@ -50,6 +49,23 @@ select yn in "Yes" "No"; do
         No ) echo "変更セット作成を中止します"; exit;;
     esac
 done
+
+# Get the path of template in S3
+get_value_from_config "CFN_BUCKET"
+CFN_BUCKET=$ret_value
+
+# Assemble target s3 path for aws s3 command
+get_value_from_config "CFN_TEMPLATE_PATH"
+CFN_TEMPLATE_PATH=$ret_value
+CFN_STORE=s3://$CFN_BUCKET/$CFN_TEMPLATE_PATH/
+
+# Assemble template url
+get_value_from_config "DEFAULT_REGION"
+DEFAULT_REGION=$ret_value
+TEMPLATE_URL=https://$CFN_BUCKET.s3-$DEFAULT_REGION.amazonaws.com/$CFN_TEMPLATE_PATH/$STACK_TO_UPDATE.yaml
+
+echo "Put template to $CFN_STORE"
+aws s3 cp --profile $DEFAULT_PROFILE $NEW_FILE $CFN_STORE
 
 DATE=`date +"%m-%d-%H-%M"`
 CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`"
@@ -72,9 +88,9 @@ CSNAME="$STACK_TO_UPDATE-`date +"%m-%d-%H-%M"`"
 # TODO: check if the resource is referenced 
 
 
-# aws cloudformation create-change-set \
-#                     --profile $DEFAULT_PROFILE \
-#                     --stack-name $STACK_TO_UPDATE \
-#                     --change-set-name $CSNAME \
-#                     --template-body $PATH_OF_STACK$STACK_TO_UPDATE.yaml \
-#                     --capabilities CAPABILITY_IAM
+aws cloudformation create-change-set \
+                    --profile $DEFAULT_PROFILE \
+                    --stack-name $STACK_TO_UPDATE \
+                    --change-set-name $CSNAME \
+                    --template-url $TEMPLATE_URL \
+                    --capabilities CAPABILITY_IAM
